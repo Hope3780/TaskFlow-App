@@ -1,87 +1,204 @@
-const USERS_KEY = "taskflowUsers";
-const CURRENT_USER_KEY = "taskflowCurrentUserId";
-const LEGACY_TASKS_KEY = "taskflowTasks";
-const THEME_KEY = "taskflowTheme";
+/* =========================================================
+   TASKFLOW + SUPABASE
+========================================================= */
+
+/* =========================
+   SUPABASE CONFIGURATION
+========================= */
+
+const SUPABASE_URL =
+    "https://qgvgjlvnmpbszhfzqdwj.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+    "sb_publishable_tYsNAhowyIeI-rve5_Tu3g_Hq6z_gzY";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+    );
+
+
+/* =========================
+   LOCAL SETTINGS
+========================= */
+
+const THEME_KEY =
+    "taskflowTheme";
+
 
 let tasks = [];
-let currentFilter = "all";
-let editingTaskId = null;
-let currentUser = null;
-let activeModal = null;
-let lastFocusedElement = null;
-let authMode = "login";
+
+let currentFilter =
+    "all";
+
+let editingTaskId =
+    null;
+
+let currentUser =
+    null;
+
+let activeModal =
+    null;
+
+let lastFocusedElement =
+    null;
+
+let authMode =
+    "login";
 
 
 /* =========================
    DOM ELEMENTS
 ========================= */
 
-const authScreen = document.getElementById("authScreen");
-const appShell = document.getElementById("appShell");
+const authScreen =
+    document.getElementById(
+        "authScreen"
+    );
 
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
+const appShell =
+    document.getElementById(
+        "appShell"
+    );
 
-const loginEmail = document.getElementById("loginEmail");
-const loginPassword = document.getElementById("loginPassword");
 
-const registerName = document.getElementById("registerName");
-const registerEmail = document.getElementById("registerEmail");
+const loginForm =
+    document.getElementById(
+        "loginForm"
+    );
+
+const registerForm =
+    document.getElementById(
+        "registerForm"
+    );
+
+
+const loginEmail =
+    document.getElementById(
+        "loginEmail"
+    );
+
+const loginPassword =
+    document.getElementById(
+        "loginPassword"
+    );
+
+
+const registerName =
+    document.getElementById(
+        "registerName"
+    );
+
+const registerEmail =
+    document.getElementById(
+        "registerEmail"
+    );
+
 const registerPassword =
-    document.getElementById("registerPassword");
+    document.getElementById(
+        "registerPassword"
+    );
+
 const registerConfirmPassword =
-    document.getElementById("registerConfirmPassword");
+    document.getElementById(
+        "registerConfirmPassword"
+    );
+
 
 const authSwitchBtn =
-    document.getElementById("authSwitchBtn");
+    document.getElementById(
+        "authSwitchBtn"
+    );
 
 const authThemeBtn =
-    document.getElementById("authThemeBtn");
+    document.getElementById(
+        "authThemeBtn"
+    );
+
 
 const logoutBtn =
-    document.getElementById("logoutBtn");
+    document.getElementById(
+        "logoutBtn"
+    );
 
 const themeBtn =
-    document.getElementById("themeBtn");
+    document.getElementById(
+        "themeBtn"
+    );
+
 
 const userGreeting =
-    document.getElementById("userGreeting");
+    document.getElementById(
+        "userGreeting"
+    );
+
 
 const searchInput =
-    document.getElementById("searchInput");
+    document.getElementById(
+        "searchInput"
+    );
+
 
 const taskList =
-    document.getElementById("taskList");
+    document.getElementById(
+        "taskList"
+    );
+
 
 const clearCompletedBtn =
-    document.getElementById("clearCompletedBtn");
+    document.getElementById(
+        "clearCompletedBtn"
+    );
 
 const addTaskBtn =
-    document.getElementById("addTaskBtn");
+    document.getElementById(
+        "addTaskBtn"
+    );
+
 
 const totalTasks =
-    document.getElementById("totalTasks");
+    document.getElementById(
+        "totalTasks"
+    );
 
 const activeTasks =
-    document.getElementById("activeTasks");
+    document.getElementById(
+        "activeTasks"
+    );
 
 const completedTasks =
-    document.getElementById("completedTasks");
+    document.getElementById(
+        "completedTasks"
+    );
 
 const overdueTasks =
-    document.getElementById("overdueTasks");
+    document.getElementById(
+        "overdueTasks"
+    );
+
 
 const productivityPercentage =
-    document.getElementById("productivityPercentage");
+    document.getElementById(
+        "productivityPercentage"
+    );
 
 const progressBar =
-    document.getElementById("progressBar");
+    document.getElementById(
+        "progressBar"
+    );
 
 const productivityText =
-    document.getElementById("productivityText");
+    document.getElementById(
+        "productivityText"
+    );
+
 
 const toastContainer =
-    document.getElementById("toastContainer");
+    document.getElementById(
+        "toastContainer"
+    );
 
 
 /* =========================
@@ -89,25 +206,39 @@ const toastContainer =
 ========================= */
 
 const addTaskModal =
-    document.getElementById("addTaskModal");
+    document.getElementById(
+        "addTaskModal"
+    );
 
 const addTaskForm =
-    document.getElementById("addTaskForm");
+    document.getElementById(
+        "addTaskForm"
+    );
 
 const taskTitle =
-    document.getElementById("taskTitle");
+    document.getElementById(
+        "taskTitle"
+    );
 
 const taskDescription =
-    document.getElementById("taskDescription");
+    document.getElementById(
+        "taskDescription"
+    );
 
 const taskCategory =
-    document.getElementById("taskCategory");
+    document.getElementById(
+        "taskCategory"
+    );
 
 const taskPriority =
-    document.getElementById("taskPriority");
+    document.getElementById(
+        "taskPriority"
+    );
 
 const taskDate =
-    document.getElementById("taskDate");
+    document.getElementById(
+        "taskDate"
+    );
 
 
 /* =========================
@@ -115,40 +246,58 @@ const taskDate =
 ========================= */
 
 const editTaskModal =
-    document.getElementById("editTaskModal");
+    document.getElementById(
+        "editTaskModal"
+    );
 
 const editTaskForm =
-    document.getElementById("editTaskForm");
+    document.getElementById(
+        "editTaskForm"
+    );
 
 const editTaskTitle =
-    document.getElementById("editTaskTitle");
+    document.getElementById(
+        "editTaskTitle"
+    );
 
 const editTaskDescription =
-    document.getElementById("editTaskDescription");
+    document.getElementById(
+        "editTaskDescription"
+    );
 
 const editTaskCategory =
-    document.getElementById("editTaskCategory");
+    document.getElementById(
+        "editTaskCategory"
+    );
 
 const editTaskPriority =
-    document.getElementById("editTaskPriority");
+    document.getElementById(
+        "editTaskPriority"
+    );
 
 const editTaskDate =
-    document.getElementById("editTaskDate");
+    document.getElementById(
+        "editTaskDate"
+    );
 
 
-/* =========================
+/* =========================================================
    THEME
-========================= */
+========================================================= */
 
 function applyTheme(theme) {
 
     if (theme === "dark") {
 
-        document.body.classList.add("dark-mode");
+        document.body.classList.add(
+            "dark-mode"
+        );
 
     } else {
 
-        document.body.classList.remove("dark-mode");
+        document.body.classList.remove(
+            "dark-mode"
+        );
     }
 
 
@@ -184,6 +333,7 @@ function toggleTheme() {
             "dark-mode"
         );
 
+
     applyTheme(
         isDark
             ? "light"
@@ -193,182 +343,36 @@ function toggleTheme() {
 
 
 const savedTheme =
-    localStorage.getItem(THEME_KEY) ||
-    "light";
-
-applyTheme(savedTheme);
-
-
-if (themeBtn) {
-
-    themeBtn.addEventListener(
-        "click",
-        toggleTheme
-    );
-}
+    localStorage.getItem(
+        THEME_KEY
+    ) || "light";
 
 
-if (authThemeBtn) {
-
-    authThemeBtn.addEventListener(
-        "click",
-        toggleTheme
-    );
-}
+applyTheme(
+    savedTheme
+);
 
 
-/* =========================
-   USERS
-========================= */
-
-function getUsers() {
-
-    try {
-
-        return JSON.parse(
-            localStorage.getItem(
-                USERS_KEY
-            )
-        ) || [];
-
-    } catch (error) {
-
-        return [];
-    }
-}
+themeBtn?.addEventListener(
+    "click",
+    toggleTheme
+);
 
 
-function saveUsers(users) {
-
-    localStorage.setItem(
-        USERS_KEY,
-        JSON.stringify(users)
-    );
-}
+authThemeBtn?.addEventListener(
+    "click",
+    toggleTheme
+);
 
 
-function getCurrentUserId() {
-
-    return localStorage.getItem(
-        CURRENT_USER_KEY
-    );
-}
-
-
-function setCurrentUserId(id) {
-
-    localStorage.setItem(
-        CURRENT_USER_KEY,
-        id
-    );
-}
-
-
-function clearCurrentUserId() {
-
-    localStorage.removeItem(
-        CURRENT_USER_KEY
-    );
-}
-
-
-/* =========================
-   USER TASK STORAGE
-========================= */
-
-function getUserTaskKey(userId) {
-
-    return `taskflowUserTasks_${userId}`;
-}
-
-
-function loadUserTasks(userId) {
-
-    if (!userId) {
-
-        tasks = [];
-
-        return;
-    }
-
-
-    try {
-
-        tasks =
-            JSON.parse(
-                localStorage.getItem(
-                    getUserTaskKey(userId)
-                )
-            ) || [];
-
-    } catch (error) {
-
-        tasks = [];
-    }
-}
-
-
-function saveUserTasks() {
-
-    if (!currentUser) {
-        return;
-    }
-
-
-    localStorage.setItem(
-        getUserTaskKey(
-            currentUser.id
-        ),
-        JSON.stringify(tasks)
-    );
-}
-
-
-/* =========================
-   LEGACY TASK MIGRATION
-========================= */
-
-function migrateLegacyTasksToUser(
-    userId
-) {
-
-    const oldTasks =
-        localStorage.getItem(
-            LEGACY_TASKS_KEY
-        );
-
-
-    if (!oldTasks) {
-        return;
-    }
-
-
-    const newKey =
-        getUserTaskKey(userId);
-
-
-    if (!localStorage.getItem(newKey)) {
-
-        localStorage.setItem(
-            newKey,
-            oldTasks
-        );
-    }
-
-
-    localStorage.removeItem(
-        LEGACY_TASKS_KEY
-    );
-}
-
-
-/* =========================
-   AUTH MODE
-========================= */
+/* =========================================================
+   AUTH SCREEN
+========================================================= */
 
 function showLoginMode() {
 
-    authMode = "login";
+    authMode =
+        "login";
 
 
     loginForm?.classList.remove(
@@ -405,7 +409,8 @@ function showLoginMode() {
 
 function showRegisterMode() {
 
-    authMode = "register";
+    authMode =
+        "register";
 
 
     loginForm?.classList.add(
@@ -464,15 +469,14 @@ function showApp() {
 }
 
 
-/* =========================
-   AUTH SWITCH
-========================= */
-
 authSwitchBtn?.addEventListener(
     "click",
     function () {
 
-        if (authMode === "login") {
+        if (
+            authMode ===
+            "login"
+        ) {
 
             showRegisterMode();
 
@@ -484,326 +488,9 @@ authSwitchBtn?.addEventListener(
 );
 
 
-/* =========================
-   EMAIL
-========================= */
-
-function validEmail(email) {
-
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        .test(email);
-}
-
-
-/* =========================
-   REGISTER
-========================= */
-
-registerForm?.addEventListener(
-    "submit",
-    function (event) {
-
-        event.preventDefault();
-
-
-        const name =
-            registerName.value.trim();
-
-        const email =
-            registerEmail.value
-                .trim()
-                .toLowerCase();
-
-        const password =
-            registerPassword.value;
-
-        const confirmPassword =
-            registerConfirmPassword.value;
-
-
-        if (!name) {
-
-            showToast(
-                "Please enter your name.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        if (!validEmail(email)) {
-
-            showToast(
-                "Please enter a valid email address.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        if (password.length < 6) {
-
-            showToast(
-                "Password must be at least 6 characters.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        if (
-            password !==
-            confirmPassword
-        ) {
-
-            showToast(
-                "Passwords do not match.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const users = getUsers();
-
-
-        const existingUser =
-            users.find(
-                user =>
-                    user.email
-                        .toLowerCase() ===
-                    email
-            );
-
-
-        if (existingUser) {
-
-            showToast(
-                "An account with this email already exists.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        const newUser = {
-
-            id:
-                Date.now().toString(),
-
-            name,
-
-            email,
-
-            password
-        };
-
-
-        users.push(newUser);
-
-        saveUsers(users);
-
-
-        migrateLegacyTasksToUser(
-            newUser.id
-        );
-
-
-        setCurrentUserId(
-            newUser.id
-        );
-
-
-        currentUser = newUser;
-
-
-        loadUserTasks(
-            currentUser.id
-        );
-
-
-        showApp();
-
-        updateGreeting();
-
-        renderTasks();
-
-        updateStatistics();
-
-
-        registerForm.reset();
-
-
-        showToast(
-            `Welcome to TaskFlow, ${name}! 🎉`,
-            "success"
-        );
-    }
-);
-
-
-/* =========================
-   LOGIN
-========================= */
-
-loginForm?.addEventListener(
-    "submit",
-    function (event) {
-
-        event.preventDefault();
-
-
-        const email =
-            loginEmail.value
-                .trim()
-                .toLowerCase();
-
-        const password =
-            loginPassword.value;
-
-
-        const users =
-            getUsers();
-
-
-        const user =
-            users.find(
-                item =>
-                    item.email
-                        .toLowerCase() ===
-                    email &&
-                    item.password ===
-                    password
-            );
-
-
-        if (!user) {
-
-            showToast(
-                "Incorrect email or password.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        currentUser = user;
-
-
-        setCurrentUserId(
-            user.id
-        );
-
-
-        loadUserTasks(
-            user.id
-        );
-
-
-        showApp();
-
-        updateGreeting();
-
-        renderTasks();
-
-        updateStatistics();
-
-
-        loginForm.reset();
-
-
-        showToast(
-            `Welcome back, ${user.name}! 👋`,
-            "success"
-        );
-    }
-);
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-logoutBtn?.addEventListener(
-    "click",
-    function () {
-
-        saveUserTasks();
-
-
-        currentUser = null;
-
-        tasks = [];
-
-
-        clearCurrentUserId();
-
-
-        showAuthScreen();
-
-        showLoginMode();
-
-
-        showToast(
-            "You have been logged out.",
-            "success"
-        );
-    }
-);
-
-
-/* =========================
-   GREETING
-========================= */
-
-function updateGreeting() {
-
-    if (
-        !currentUser ||
-        !userGreeting
-    ) {
-        return;
-    }
-
-
-    const hour =
-        new Date().getHours();
-
-
-    let greeting;
-
-
-    if (hour < 12) {
-
-        greeting =
-            "Good morning";
-
-    } else if (hour < 18) {
-
-        greeting =
-            "Good afternoon";
-
-    } else {
-
-        greeting =
-            "Good evening";
-    }
-
-
-    userGreeting.textContent =
-        `${greeting}, ${currentUser.name}! 👋`;
-}
-
-
-/* =========================
+/* =========================================================
    TOAST
-========================= */
+========================================================= */
 
 function showToast(
     message,
@@ -845,9 +532,70 @@ function showToast(
 }
 
 
-/* =========================
+/* =========================================================
+   GREETING
+========================================================= */
+
+function getUserName() {
+
+    if (!currentUser) {
+        return "there";
+    }
+
+
+    return (
+        currentUser.user_metadata
+            ?.name ||
+        currentUser.email
+            ?.split("@")[0] ||
+        "there"
+    );
+}
+
+
+function updateGreeting() {
+
+    if (
+        !currentUser ||
+        !userGreeting
+    ) {
+
+        return;
+    }
+
+
+    const hour =
+        new Date().getHours();
+
+
+    let greeting;
+
+
+    if (hour < 12) {
+
+        greeting =
+            "Good morning";
+
+    } else if (hour < 18) {
+
+        greeting =
+            "Good afternoon";
+
+    } else {
+
+        greeting =
+            "Good evening";
+    }
+
+
+    userGreeting.textContent =
+        `${greeting}, ${getUserName()}! 👋`;
+}
+
+
+/* =========================================================
    DATE HELPERS
-========================= */
+========================================================= */
 
 function getLocalDateString(
     date = new Date()
@@ -856,15 +604,23 @@ function getLocalDateString(
     const year =
         date.getFullYear();
 
+
     const month =
         String(
             date.getMonth() + 1
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
+
 
     const day =
         String(
             date.getDate()
-        ).padStart(2, "0");
+        ).padStart(
+            2,
+            "0"
+        );
 
 
     return `${year}-${month}-${day}`;
@@ -895,11 +651,502 @@ function setMinimumTaskDate() {
 setMinimumTaskDate();
 
 
-/* =========================
-   MODALS
-========================= */
+/* =========================================================
+   SUPABASE TASK CONVERSION
+========================================================= */
 
-function openModal(modal) {
+function databaseTaskToAppTask(
+    task
+) {
+
+    return {
+
+        id:
+            String(task.id),
+
+        title:
+            task.title || "",
+
+        description:
+            task.description || "",
+
+        category:
+            task.category || "Other",
+
+        priority:
+            task.priority || "medium",
+
+        dueDate:
+            task.due_date || "",
+
+        completed:
+            Boolean(
+                task.completed
+            ),
+
+        pinned:
+            Boolean(
+                task.pinned
+            ),
+
+        createdAt:
+            task.created_at ||
+            new Date().toISOString(),
+
+        completedAt:
+            task.completed_at ||
+            null
+    };
+}
+
+
+/* =========================================================
+   LOAD TASKS FROM SUPABASE
+========================================================= */
+
+async function loadUserTasks() {
+
+    if (!currentUser) {
+
+        tasks = [];
+
+        return;
+    }
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("tasks")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Load tasks error:",
+            error
+        );
+
+
+        showToast(
+            "Unable to load your tasks.",
+            "error"
+        );
+
+
+        tasks = [];
+
+        return;
+    }
+
+
+    tasks =
+        (data || [])
+            .map(
+                databaseTaskToAppTask
+            );
+}
+
+
+/* =========================================================
+   REGISTER
+========================================================= */
+
+registerForm?.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const name =
+            registerName.value.trim();
+
+
+        const email =
+            registerEmail.value
+                .trim()
+                .toLowerCase();
+
+
+        const password =
+            registerPassword.value;
+
+
+        const confirmPassword =
+            registerConfirmPassword.value;
+
+
+        if (!name) {
+
+            showToast(
+                "Please enter your name.",
+                "warning"
+            );
+
+            return;
+        }
+
+
+        if (password.length < 6) {
+
+            showToast(
+                "Password must be at least 6 characters.",
+                "warning"
+            );
+
+            return;
+        }
+
+
+        if (
+            password !==
+            confirmPassword
+        ) {
+
+            showToast(
+                "Passwords do not match.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signUp({
+
+                    email,
+
+                    password,
+
+                    options: {
+
+                        data: {
+
+                            name
+                        }
+                    }
+                });
+
+
+        if (error) {
+
+            console.error(
+                "Registration error:",
+                error
+            );
+
+
+            showToast(
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        registerForm.reset();
+
+
+        if (
+            data.session &&
+            data.user
+        ) {
+
+            currentUser =
+                data.user;
+
+
+            showApp();
+
+            updateGreeting();
+
+            await loadUserTasks();
+
+            renderTasks();
+
+            updateStatistics();
+
+
+            showToast(
+                `Welcome to TaskFlow, ${name}! 🎉`,
+                "success"
+            );
+
+        } else {
+
+            showLoginMode();
+
+
+            showToast(
+                "Account created! Please check your email to confirm your account before logging in. 📧",
+                "success"
+            );
+        }
+    }
+);
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+loginForm?.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const email =
+            loginEmail.value
+                .trim()
+                .toLowerCase();
+
+
+        const password =
+            loginPassword.value;
+
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signInWithPassword({
+
+                    email,
+
+                    password
+                });
+
+
+        if (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+
+            showToast(
+                "Incorrect email or password.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        currentUser =
+            data.user;
+
+
+        loginForm.reset();
+
+
+        showApp();
+
+        updateGreeting();
+
+
+        await loadUserTasks();
+
+        renderTasks();
+
+        updateStatistics();
+
+
+        showToast(
+            `Welcome back, ${getUserName()}! 👋`,
+            "success"
+        );
+    }
+);
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+logoutBtn?.addEventListener(
+    "click",
+    async function () {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .auth
+                .signOut();
+
+
+        if (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+
+            showToast(
+                "Unable to log out.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        currentUser =
+            null;
+
+        tasks = [];
+
+
+        showAuthScreen();
+
+        showLoginMode();
+
+
+        showToast(
+            "You have been logged out.",
+            "success"
+        );
+    }
+);
+
+
+/* =========================================================
+   AUTH SESSION
+========================================================= */
+
+supabaseClient
+    .auth
+    .onAuthStateChange(
+        async function (
+            event,
+            session
+        ) {
+
+            if (
+                session &&
+                session.user
+            ) {
+
+                currentUser =
+                    session.user;
+
+
+                showApp();
+
+                updateGreeting();
+
+
+                await loadUserTasks();
+
+                renderTasks();
+
+                updateStatistics();
+
+            } else {
+
+                currentUser =
+                    null;
+
+                tasks = [];
+
+
+                showAuthScreen();
+
+                showLoginMode();
+            }
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZE AUTH
+========================================================= */
+
+async function initializeApp() {
+
+    showAuthScreen();
+
+    showLoginMode();
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .auth
+            .getSession();
+
+
+    if (error) {
+
+        console.error(
+            "Session error:",
+            error
+        );
+
+        return;
+    }
+
+
+    if (
+        data.session &&
+        data.session.user
+    ) {
+
+        currentUser =
+            data.session.user;
+
+
+        showApp();
+
+        updateGreeting();
+
+
+        await loadUserTasks();
+
+        renderTasks();
+
+        updateStatistics();
+    }
+}
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+function openModal(
+    modal
+) {
 
     if (!modal) {
         return;
@@ -925,7 +1172,9 @@ function openModal(modal) {
 }
 
 
-function closeModal(modal) {
+function closeModal(
+    modal
+) {
 
     if (!modal) {
         return;
@@ -937,7 +1186,8 @@ function closeModal(modal) {
     );
 
 
-    activeModal = null;
+    activeModal =
+        null;
 
 
     document.body.classList.remove(
@@ -956,9 +1206,9 @@ function closeModal(modal) {
 }
 
 
-/* =========================
+/* =========================================================
    ADD TASK MODAL
-========================= */
+========================================================= */
 
 addTaskBtn?.addEventListener(
     "click",
@@ -967,6 +1217,7 @@ addTaskBtn?.addEventListener(
         addTaskForm.reset();
 
         setMinimumTaskDate();
+
 
         openModal(
             addTaskModal
@@ -985,9 +1236,9 @@ addTaskBtn?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    CLOSE MODALS
-========================= */
+========================================================= */
 
 document.addEventListener(
     "click",
@@ -1015,14 +1266,16 @@ document.addEventListener(
             );
 
 
-        closeModal(modal);
+        closeModal(
+            modal
+        );
     }
 );
 
 
-/* =========================
+/* =========================================================
    ESCAPE
-========================= */
+========================================================= */
 
 document.addEventListener(
     "keydown",
@@ -1041,31 +1294,47 @@ document.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    ADD TASK
-========================= */
+========================================================= */
 
 addTaskForm?.addEventListener(
     "submit",
-    function (event) {
+    async function (event) {
 
         event.preventDefault();
+
+
+        if (!currentUser) {
+
+            showToast(
+                "Please log in first.",
+                "warning"
+            );
+
+            return;
+        }
 
 
         const title =
             taskTitle.value.trim();
 
+
         const description =
             taskDescription.value.trim();
+
 
         const category =
             taskCategory.value;
 
+
         const priority =
             taskPriority.value;
 
+
         const dueDate =
-            taskDate.value;
+            taskDate.value ||
+            null;
 
 
         if (!title) {
@@ -1082,35 +1351,66 @@ addTaskForm?.addEventListener(
         const newTask = {
 
             id:
-                Date.now().toString(),
+                Date.now(),
+
+            user_id:
+                currentUser.id,
 
             title,
 
-            description,
+            description:
+                description || null,
 
             category,
 
             priority,
 
-            dueDate,
+            due_date:
+                dueDate,
 
-            completed: false,
+            completed:
+                false,
 
-            pinned: false,
-
-            createdAt:
-                new Date().toISOString(),
-
-            completedAt: null
+            pinned:
+                false
         };
 
 
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("tasks")
+                .insert(
+                    newTask
+                )
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Add task error:",
+                error
+            );
+
+
+            showToast(
+                `Unable to add task: ${error.message}`,
+                "error"
+            );
+
+            return;
+        }
+
+
         tasks.unshift(
-            newTask
+            databaseTaskToAppTask(
+                data
+            )
         );
-
-
-        saveUserTasks();
 
 
         renderTasks();
@@ -1134,9 +1434,9 @@ addTaskForm?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    EDIT TASK
-========================= */
+========================================================= */
 
 function openEditTask(
     taskId
@@ -1145,8 +1445,8 @@ function openEditTask(
     const task =
         tasks.find(
             item =>
-                item.id ===
-                taskId
+                String(item.id) ===
+                String(taskId)
         );
 
 
@@ -1162,14 +1462,18 @@ function openEditTask(
     editTaskTitle.value =
         task.title;
 
+
     editTaskDescription.value =
         task.description || "";
+
 
     editTaskCategory.value =
         task.category || "Other";
 
+
     editTaskPriority.value =
         task.priority || "medium";
+
 
     editTaskDate.value =
         task.dueDate || "";
@@ -1196,20 +1500,12 @@ function openEditTask(
 
 editTaskForm?.addEventListener(
     "submit",
-    function (event) {
+    async function (event) {
 
         event.preventDefault();
 
 
-        const task =
-            tasks.find(
-                item =>
-                    item.id ===
-                    editingTaskId
-            );
-
-
-        if (!task) {
+        if (!currentUser) {
             return;
         }
 
@@ -1229,23 +1525,84 @@ editTaskForm?.addEventListener(
         }
 
 
-        task.title =
-            title;
+        const updatedValues = {
 
-        task.description =
-            editTaskDescription.value.trim();
+            title,
 
-        task.category =
-            editTaskCategory.value;
+            description:
+                editTaskDescription
+                    .value
+                    .trim() ||
+                null,
 
-        task.priority =
-            editTaskPriority.value;
+            category:
+                editTaskCategory.value,
 
-        task.dueDate =
-            editTaskDate.value;
+            priority:
+                editTaskPriority.value,
+
+            due_date:
+                editTaskDate.value ||
+                null
+        };
 
 
-        saveUserTasks();
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("tasks")
+                .update(
+                    updatedValues
+                )
+                .eq(
+                    "id",
+                    Number(
+                        editingTaskId
+                    )
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .select()
+                .single();
+
+
+        if (error) {
+
+            console.error(
+                "Update task error:",
+                error
+            );
+
+
+            showToast(
+                "Unable to update task.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const index =
+            tasks.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(editingTaskId)
+            );
+
+
+        if (index !== -1) {
+
+            tasks[index] =
+                databaseTaskToAppTask(
+                    data
+                );
+        }
+
 
         renderTasks();
 
@@ -1257,7 +1614,8 @@ editTaskForm?.addEventListener(
         );
 
 
-        editingTaskId = null;
+        editingTaskId =
+            null;
 
 
         showToast(
@@ -1268,36 +1626,106 @@ editTaskForm?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    COMPLETE TASK
-========================= */
+========================================================= */
 
-function toggleTaskCompletion(
+async function toggleTaskCompletion(
     taskId
 ) {
 
     const task =
         tasks.find(
             item =>
-                item.id ===
-                taskId
+                String(item.id) ===
+                String(taskId)
         );
 
 
-    if (!task) {
+    if (!task || !currentUser) {
         return;
     }
 
 
-    task.completed =
+    const newCompleted =
         !task.completed;
 
 
-    if (task.completed) {
+    const completedAt =
+        newCompleted
+            ? new Date().toISOString()
+            : null;
 
-        task.completedAt =
-            new Date().toISOString();
 
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("tasks")
+            .update({
+
+                completed:
+                    newCompleted,
+
+                completed_at:
+                    completedAt
+            })
+            .eq(
+                "id",
+                Number(taskId)
+            )
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .select()
+            .single();
+
+
+    if (error) {
+
+        console.error(
+            "Completion error:",
+            error
+        );
+
+
+        showToast(
+            "Unable to update task.",
+            "error"
+        );
+
+
+        renderTasks();
+
+        return;
+    }
+
+
+    const index =
+        tasks.findIndex(
+            item =>
+                String(item.id) ===
+                String(taskId)
+        );
+
+
+    if (index !== -1) {
+
+        tasks[index] =
+            databaseTaskToAppTask(
+                data
+            );
+    }
+
+
+    renderTasks();
+
+    updateStatistics();
+
+
+    if (newCompleted) {
 
         showToast(
             `"${task.title}" completed! 🎉`,
@@ -1306,62 +1734,97 @@ function toggleTaskCompletion(
 
     } else {
 
-        task.completedAt =
-            null;
-
-
         showToast(
             `"${task.title}" marked as active.`,
             "warning"
         );
     }
-
-
-    /*
-       SAVE FIRST
-       THEN UPDATE THE UI
-    */
-
-    saveUserTasks();
-
-    renderTasks();
-
-    updateStatistics();
 }
 
 
-/* =========================
+/* =========================================================
    PIN TASK
-========================= */
+========================================================= */
 
-function toggleTaskPin(
+async function toggleTaskPin(
     taskId
 ) {
 
     const task =
         tasks.find(
             item =>
-                item.id ===
-                taskId
+                String(item.id) ===
+                String(taskId)
         );
 
 
-    if (!task) {
+    if (!task || !currentUser) {
         return;
     }
 
 
-    task.pinned =
-        !task.pinned;
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("tasks")
+            .update({
+
+                pinned:
+                    !task.pinned
+            })
+            .eq(
+                "id",
+                Number(taskId)
+            )
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .select()
+            .single();
 
 
-    saveUserTasks();
+    if (error) {
+
+        console.error(
+            "Pin error:",
+            error
+        );
+
+
+        showToast(
+            "Unable to update task.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const index =
+        tasks.findIndex(
+            item =>
+                String(item.id) ===
+                String(taskId)
+        );
+
+
+    if (index !== -1) {
+
+        tasks[index] =
+            databaseTaskToAppTask(
+                data
+            );
+    }
+
 
     renderTasks();
 
 
     showToast(
-        task.pinned
+        data.pinned
             ? "Task pinned 📌"
             : "Task unpinned.",
         "success"
@@ -1369,23 +1832,23 @@ function toggleTaskPin(
 }
 
 
-/* =========================
+/* =========================================================
    DELETE TASK
-========================= */
+========================================================= */
 
-function deleteTask(
+async function deleteTask(
     taskId
 ) {
 
     const task =
         tasks.find(
             item =>
-                item.id ===
-                taskId
+                String(item.id) ===
+                String(taskId)
         );
 
 
-    if (!task) {
+    if (!task || !currentUser) {
         return;
     }
 
@@ -1401,15 +1864,46 @@ function deleteTask(
     }
 
 
-    tasks =
-        tasks.filter(
-            item =>
-                item.id !==
-                taskId
+    const {
+        error
+    } =
+        await supabaseClient
+            .from("tasks")
+            .delete()
+            .eq(
+                "id",
+                Number(taskId)
+            )
+            .eq(
+                "user_id",
+                currentUser.id
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Delete error:",
+            error
         );
 
 
-    saveUserTasks();
+        showToast(
+            "Unable to delete task.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    tasks =
+        tasks.filter(
+            item =>
+                String(item.id) !==
+                String(taskId)
+        );
+
 
     renderTasks();
 
@@ -1423,13 +1917,18 @@ function deleteTask(
 }
 
 
-/* =========================
+/* =========================================================
    CLEAR COMPLETED
-========================= */
+========================================================= */
 
 clearCompletedBtn?.addEventListener(
     "click",
-    function () {
+    async function () {
+
+        if (!currentUser) {
+            return;
+        }
+
 
         const completedCount =
             tasks.filter(
@@ -1462,14 +1961,45 @@ clearCompletedBtn?.addEventListener(
         }
 
 
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("tasks")
+                .delete()
+                .eq(
+                    "user_id",
+                    currentUser.id
+                )
+                .eq(
+                    "completed",
+                    true
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Clear completed error:",
+                error
+            );
+
+
+            showToast(
+                "Unable to clear completed tasks.",
+                "error"
+            );
+
+            return;
+        }
+
+
         tasks =
             tasks.filter(
                 task =>
                     !task.completed
             );
 
-
-        saveUserTasks();
 
         renderTasks();
 
@@ -1484,9 +2014,9 @@ clearCompletedBtn?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    DATE FILTERS
-========================= */
+========================================================= */
 
 function isToday(
     dateString
@@ -1601,11 +2131,13 @@ function isThisWeek(
 }
 
 
-/* =========================
+/* =========================================================
    OVERDUE
-========================= */
+========================================================= */
 
-function isOverdue(task) {
+function isOverdue(
+    task
+) {
 
     if (
         !task.dueDate ||
@@ -1623,9 +2155,9 @@ function isOverdue(task) {
 }
 
 
-/* =========================
+/* =========================================================
    FILTER MATCH
-========================= */
+========================================================= */
 
 function matchesFilter(
     task
@@ -1673,9 +2205,9 @@ function matchesFilter(
 }
 
 
-/* =========================
+/* =========================================================
    SEARCH
-========================= */
+========================================================= */
 
 searchInput?.addEventListener(
     "input",
@@ -1686,9 +2218,9 @@ searchInput?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    FILTER BUTTONS
-========================= */
+========================================================= */
 
 document.addEventListener(
     "click",
@@ -1733,9 +2265,9 @@ document.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    ESCAPE HTML
-========================= */
+========================================================= */
 
 function escapeHTML(
     value
@@ -1755,9 +2287,9 @@ function escapeHTML(
 }
 
 
-/* =========================
+/* =========================================================
    FORMAT DATE
-========================= */
+========================================================= */
 
 function formatDate(
     dateString
@@ -1785,9 +2317,9 @@ function formatDate(
 }
 
 
-/* =========================
+/* =========================================================
    COMPLETION TIME
-========================= */
+========================================================= */
 
 function formatCompletedTime(
     dateString
@@ -1812,9 +2344,9 @@ function formatCompletedTime(
 }
 
 
-/* =========================
+/* =========================================================
    RENDER TASKS
-========================= */
+========================================================= */
 
 function renderTasks() {
 
@@ -1880,10 +2412,6 @@ function renderTasks() {
             }
         );
 
-
-    /*
-       PINNED TASKS FIRST
-    */
 
     filteredTasks.sort(
         (a, b) => {
@@ -2011,7 +2539,7 @@ function renderTasks() {
                                                 >
                                                     📌
                                                 </span>
-                                              `
+                                            `
                                             : ""
                                     }
 
@@ -2084,7 +2612,7 @@ function renderTasks() {
                                                     }
 
                                                 </span>
-                                              `
+                                            `
                                             : ""
                                     }
 
@@ -2164,9 +2692,9 @@ function renderTasks() {
 }
 
 
-/* =========================
+/* =========================================================
    TASK ACTIONS
-========================= */
+========================================================= */
 
 taskList?.addEventListener(
     "click",
@@ -2186,11 +2714,14 @@ taskList?.addEventListener(
         const action =
             button.dataset.action;
 
+
         const taskId =
             button.dataset.id;
 
 
-        if (action === "pin") {
+        if (
+            action === "pin"
+        ) {
 
             toggleTaskPin(
                 taskId
@@ -2198,7 +2729,9 @@ taskList?.addEventListener(
         }
 
 
-        if (action === "edit") {
+        if (
+            action === "edit"
+        ) {
 
             openEditTask(
                 taskId
@@ -2206,7 +2739,9 @@ taskList?.addEventListener(
         }
 
 
-        if (action === "delete") {
+        if (
+            action === "delete"
+        ) {
 
             deleteTask(
                 taskId
@@ -2216,9 +2751,9 @@ taskList?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    CHECKBOX
-========================= */
+========================================================= */
 
 taskList?.addEventListener(
     "change",
@@ -2246,9 +2781,9 @@ taskList?.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
    STATISTICS
-========================= */
+========================================================= */
 
 function updateStatistics() {
 
@@ -2274,7 +2809,8 @@ function updateStatistics() {
         ).length;
 
 
-    let productivity = 0;
+    let productivity =
+        0;
 
 
     if (total > 0) {
@@ -2288,8 +2824,6 @@ function updateStatistics() {
             );
     }
 
-
-    /* BASIC COUNTERS */
 
     if (totalTasks) {
 
@@ -2319,8 +2853,6 @@ function updateStatistics() {
     }
 
 
-    /* PRODUCTIVITY */
-
     if (productivityPercentage) {
 
         productivityPercentage.textContent =
@@ -2335,8 +2867,6 @@ function updateStatistics() {
     }
 
 
-    /* PRODUCTIVITY MESSAGE */
-
     if (productivityText) {
 
         if (total === 0) {
@@ -2344,22 +2874,30 @@ function updateStatistics() {
             productivityText.textContent =
                 "Start completing tasks to track your productivity.";
 
-        } else if (productivity === 100) {
+        } else if (
+            productivity === 100
+        ) {
 
             productivityText.textContent =
                 "Amazing! All your tasks are completed! 🎉";
 
-        } else if (productivity >= 75) {
+        } else if (
+            productivity >= 75
+        ) {
 
             productivityText.textContent =
                 "Great progress! Keep going! 💪";
 
-        } else if (productivity >= 50) {
+        } else if (
+            productivity >= 50
+        ) {
 
             productivityText.textContent =
                 "You're halfway there. Keep pushing! 🚀";
 
-        } else if (productivity > 0) {
+        } else if (
+            productivity > 0
+        ) {
 
             productivityText.textContent =
                 "Good start! Keep completing your tasks.";
@@ -2373,77 +2911,8 @@ function updateStatistics() {
 }
 
 
-/* =========================
-   INITIALIZE
-========================= */
-
-function initializeApp() {
-
-    const currentUserId =
-        getCurrentUserId();
-
-
-    if (!currentUserId) {
-
-        currentUser = null;
-
-        tasks = [];
-
-
-        showAuthScreen();
-
-        showLoginMode();
-
-        return;
-    }
-
-
-    const users =
-        getUsers();
-
-
-    const user =
-        users.find(
-            item =>
-                item.id ===
-                currentUserId
-        );
-
-
-    if (!user) {
-
-        clearCurrentUserId();
-
-        currentUser = null;
-
-        tasks = [];
-
-
-        showAuthScreen();
-
-        showLoginMode();
-
-        return;
-    }
-
-
-    currentUser =
-        user;
-
-
-    loadUserTasks(
-        currentUser.id
-    );
-
-
-    showApp();
-
-    updateGreeting();
-
-    renderTasks();
-
-    updateStatistics();
-}
-
+/* =========================================================
+   START TASKFLOW
+========================================================= */
 
 initializeApp();
